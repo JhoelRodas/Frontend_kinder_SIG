@@ -1,3 +1,4 @@
+import { QRCodeCanvas } from 'qrcode.react';
 import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
@@ -45,8 +46,9 @@ export function ChildView() {
     const [editChild, setEditChild] = useState<ChildResponse | null>(null);
 
     // Token Dialog State
-    const [tokenDialog, setTokenDialog] = useState<{ open: boolean; token: string; message: string }>({
+    const [tokenDialog, setTokenDialog] = useState<{ open: boolean; childId: string; token: string; message: string }>({
         open: false,
+        childId: '',
         token: '',
         message: '',
     });
@@ -89,6 +91,7 @@ export function ChildView() {
             const response = await childService.generateToken(id);
             setTokenDialog({
                 open: true,
+                childId: id,
                 token: response.device_token,
                 message: response.message,
             });
@@ -242,17 +245,64 @@ export function ChildView() {
             </Dialog>
 
             {/* Token Dialog */}
-            <Dialog open={tokenDialog.open} onClose={() => setTokenDialog({ ...tokenDialog, open: false })}>
+            <Dialog
+                open={tokenDialog.open}
+                onClose={() => setTokenDialog({ ...tokenDialog, open: false })}
+                maxWidth="sm"
+                fullWidth
+            >
                 <DialogTitle>Token Generado</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
+                    <DialogContentText sx={{ mb: 2 }}>
                         {tokenDialog.message}
                     </DialogContentText>
+
+                    {/* Token Display */}
                     <Box sx={{ mt: 2, p: 2, bgcolor: 'action.hover', borderRadius: 1, textAlign: 'center' }}>
-                        <Typography variant="h5" sx={{ fontFamily: 'monospace', fontWeight: 'bold' }}>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                            Token:
+                        </Typography>
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                fontFamily: 'monospace',
+                                fontWeight: 'bold',
+                                wordBreak: 'break-all'
+                            }}
+                        >
                             {tokenDialog.token}
                         </Typography>
                     </Box>
+
+                    {/* QR Code Display */}
+                    {tokenDialog.token && tokenDialog.childId && (
+                        <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                                Código QR:
+                            </Typography>
+                            <Box
+                                sx={{
+                                    p: 2,
+                                    bgcolor: 'white',
+                                    borderRadius: 2,
+                                    display: 'inline-block'
+                                }}
+                            >
+                                <QRCodeCanvas
+                                    value={JSON.stringify({
+                                        child_id: tokenDialog.childId,
+                                        token: tokenDialog.token
+                                    })}
+                                    size={200}
+                                    level="H"
+                                    includeMargin
+                                />
+                            </Box>
+                            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
+                                Escanea este código QR para vincular el dispositivo
+                            </Typography>
+                        </Box>
+                    )}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setTokenDialog({ ...tokenDialog, open: false })}>Cerrar</Button>
