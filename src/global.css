@@ -54,3 +54,22 @@ input[type='number']::-webkit-inner-spin-button {
   margin: 0;
   -webkit-appearance: none;
 }
+
+/** **************************************
+* Leaflet Map Custom Styles
+*************************************** */
+/* Vértices circulares para polígonos en modo edición */
+.leaflet-vertex-icon {
+  background: white !important;
+  border: 2px solid #2196f3 !important;
+  border-radius: 50% !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  cursor: move !important;
+}
+
+/* Vértices en hover */
+.leaflet-vertex-icon:hover {
+  background: #e3f2fd !important;
+  border-color: #1976d2 !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3) !important;
+}

@@ -28,9 +28,9 @@ export type RegisterRequest = {
 };
 
 export const authService = {
-  async login(email: string, password: string): Promise<TokenResponse> {
-    const response = await apiClient.post('/auth/login-json', {
-      email,
+  async login(username: string, password: string): Promise<TokenResponse> {
+    const response = await apiClient.post('/login/', {
+      username,
       password,
     });
     return response;

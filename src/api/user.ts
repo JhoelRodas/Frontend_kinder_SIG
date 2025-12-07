@@ -11,12 +11,12 @@ export type UserResponse = {
 
 export const userService = {
     async getUsers(): Promise<UserResponse[]> {
-        const response = await apiClient.get('/users/');
+        const response = await apiClient.get('/usuarios');
         return response;
     },
 
     async getUser(id: string): Promise<UserResponse> {
-        const response = await apiClient.get(`/users/${id}`);
+        const response = await apiClient.get(`/usuarios/${id}`);
         return response;
     },
 };
