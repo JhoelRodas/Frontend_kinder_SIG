@@ -29,6 +29,11 @@ const apiClient = {
       throw new Error(error.detail || 'Error en la solicitud');
     }
 
+    // Si la respuesta es 204 No Content, no hay JSON para parsear
+    if (response.status === 204) {
+      return null;
+    }
+
     return response.json();
   },
 
