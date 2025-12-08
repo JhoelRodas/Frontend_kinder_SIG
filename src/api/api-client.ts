@@ -47,6 +47,17 @@ const apiClient = {
       body: JSON.stringify(body),
     });
   },
+
+  put(endpoint: string, body: unknown) {
+    return this.request(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+  },
+
+  delete(endpoint: string) {
+    return this.request(endpoint, { method: 'DELETE' });
+  },
 };
 
 export default apiClient;

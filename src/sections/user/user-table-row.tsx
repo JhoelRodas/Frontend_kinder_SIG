@@ -29,9 +29,11 @@ type UserTableRowProps = {
   row: UserProps;
   selected: boolean;
   onSelectRow: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 };
 
-export function UserTableRow({ row, selected, onSelectRow }: UserTableRowProps) {
+export function UserTableRow({ row, selected, onSelectRow, onEdit, onDelete }: UserTableRowProps) {
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
@@ -108,12 +110,23 @@ export function UserTableRow({ row, selected, onSelectRow }: UserTableRowProps) 
             },
           }}
         >
-          <MenuItem onClick={handleClosePopover}>
+          <MenuItem
+            onClick={() => {
+              handleClosePopover();
+              onEdit?.();
+            }}
+          >
             <Iconify icon="solar:pen-bold" />
             Edit
           </MenuItem>
 
-          <MenuItem onClick={handleClosePopover} sx={{ color: 'error.main' }}>
+          <MenuItem
+            onClick={() => {
+              handleClosePopover();
+              onDelete?.();
+            }}
+            sx={{ color: 'error.main' }}
+          >
             <Iconify icon="solar:trash-bin-trash-bold" />
             Delete
           </MenuItem>
