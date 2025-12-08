@@ -22,6 +22,7 @@ import { InstitutionItem } from '../institution-item';
 import { MapDrawer } from '../institution-map-drawer';
 import { InstitutionDialog } from '../institution-dialog';
 import { InstitutionToolbar } from '../institution-toolbar';
+import { InstitutionChildrenDialog } from '../institution-children-dialog';
 
 export function InstitutionView() {
   const [institutions, setInstitutions] = useState<InstitutionResponse[]>([]);
@@ -34,6 +35,7 @@ export function InstitutionView() {
   const [editingInstitution, setEditingInstitution] = useState<InstitutionResponse | null>(null);
   const [viewingInstitution, setViewingInstitution] = useState<InstitutionResponse | null>(null);
   const [deletingInstitution, setDeletingInstitution] = useState<InstitutionResponse | null>(null);
+  const [viewingChildren, setViewingChildren] = useState<InstitutionResponse | null>(null);
 
   const fetchInstitutions = useCallback(async () => {
     try {
@@ -74,6 +76,10 @@ export function InstitutionView() {
 
   const handleView = (institution: InstitutionResponse) => {
     setViewingInstitution(institution);
+  };
+
+  const handleViewChildren = (institution: InstitutionResponse) => {
+    setViewingChildren(institution);
   };
 
   const handleSave = async (data: { nombre: string; direccion: string; area: GeoJSONPolygon }) => {
@@ -156,6 +162,7 @@ export function InstitutionView() {
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onView={handleView}
+                onViewChildren={handleViewChildren}
               />
             </Grid>
           ))}
@@ -196,7 +203,6 @@ export function InstitutionView() {
           <Button onClick={() => setViewingInstitution(null)}>Cerrar</Button>
         </DialogActions>
       </Dialog>
-
       {/* Dialog de confirmación de eliminación */}
       <ConfirmDialog
         open={!!deletingInstitution}
@@ -213,6 +219,14 @@ export function InstitutionView() {
           </>
         }
         onClose={() => setDeletingInstitution(null)}
+      />
+
+      {/* Dialog para ver niños */}
+      <InstitutionChildrenDialog
+        open={!!viewingChildren}
+        institutionId={viewingChildren?.id || null}
+        institutionName={viewingChildren?.nombre || ''}
+        onClose={() => setViewingChildren(null)}
       />
     </DashboardContent>
   );

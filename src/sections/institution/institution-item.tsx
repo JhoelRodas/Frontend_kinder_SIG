@@ -15,9 +15,10 @@ type InstitutionItemProps = {
   onEdit: (institution: InstitutionResponse) => void;
   onDelete: (id: string) => void;
   onView: (institution: InstitutionResponse) => void;
+  onViewChildren: (institution: InstitutionResponse) => void;
 };
 
-export function InstitutionItem({ institution, onEdit, onDelete, onView }: InstitutionItemProps) {
+export function InstitutionItem({ institution, onEdit, onDelete, onView, onViewChildren }: InstitutionItemProps) {
   return (
     <Card>
       <CardContent>
@@ -42,13 +43,23 @@ export function InstitutionItem({ institution, onEdit, onDelete, onView }: Insti
         </Stack>
       </CardContent>
       <CardActions sx={{ justifyContent: 'space-between', px: 2, pb: 2 }}>
-        <Button
-          size="small"
-          startIcon={<Iconify icon="solar:eye-bold" />}
-          onClick={() => onView(institution)}
-        >
-          Ver Mapa
-        </Button>
+        <Stack direction="row" spacing={1}>
+          <Button
+            size="small"
+            startIcon={<Iconify icon="solar:eye-bold" />}
+            onClick={() => onView(institution)}
+          >
+            Ver Mapa
+          </Button>
+          <Button
+            size="small"
+            color="primary"
+            startIcon={<Iconify icon="solar:chat-round-dots-bold" />}
+            onClick={() => onViewChildren(institution)}
+          >
+            Ver Niños
+          </Button>
+        </Stack>
         <Stack direction="row" spacing={1}>
           <IconButton size="small" onClick={() => onEdit(institution)}>
             <Iconify icon="solar:pen-bold" width={20} />
