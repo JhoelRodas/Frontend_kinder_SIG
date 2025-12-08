@@ -18,12 +18,12 @@ import { Iconify } from 'src/components/iconify';
 
 export function ChildItem({
     child,
-    onGenerateToken,
-    onEdit
+    onEdit,
+    onDelete
 }: {
     child: ChildResponse;
-    onGenerateToken: (id: string) => void;
     onEdit: (child: ChildResponse) => void;
+    onDelete?: (id: number) => void;
 }) {
     const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
 
@@ -35,20 +35,22 @@ export function ChildItem({
         setOpenPopover(null);
     }, []);
 
-    const handleGenerateToken = useCallback(() => {
-        handleClosePopover();
-        onGenerateToken(child.id);
-    }, [child.id, onGenerateToken, handleClosePopover]);
-
     const handleEdit = useCallback(() => {
         handleClosePopover();
         onEdit(child);
     }, [child, onEdit, handleClosePopover]);
 
+    const handleDelete = useCallback(() => {
+        handleClosePopover();
+        if (onDelete) {
+            onDelete(child.id);
+        }
+    }, [child.id, onDelete, handleClosePopover]);
+
     const renderStatus = (
         <Label
             variant="inverted"
-            color={(child.is_active ? 'success' : 'error')}
+            color={(child.activo ? 'success' : 'error')}
             sx={{
                 zIndex: 9,
                 top: 16,
@@ -57,15 +59,15 @@ export function ChildItem({
                 textTransform: 'uppercase',
             }}
         >
-            {child.is_active ? 'Active' : 'Inactive'}
+            {child.activo ? 'Activo' : 'Inactivo'}
         </Label>
     );
 
     const renderImg = (
         <Box
             component="img"
-            alt={child.full_name}
-            src={child.photo_url || `/assets/images/avatars/avatar_${Math.floor(Math.random() * 25) + 1}.jpg`}
+            alt={child.nombre}
+            src={`/assets/images/avatars/avatar_${Math.floor(Math.random() * 25) + 1}.jpg`}
             sx={{
                 top: 0,
                 width: 1,
@@ -86,7 +88,7 @@ export function ChildItem({
             <Stack spacing={2} sx={{ p: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Link color="inherit" underline="hover" variant="subtitle2" noWrap>
-                        {child.full_name}
+                        {child.nombre}
                     </Link>
 
                     <IconButton onClick={handleOpenPopover}>
@@ -95,7 +97,7 @@ export function ChildItem({
                 </Box>
 
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    {child.birth_date || 'No birth date'}
+                    {child.last_status}
                 </Typography>
             </Stack>
 
@@ -106,14 +108,13 @@ export function ChildItem({
                 anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
                 transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
-                <MenuItem onClick={handleGenerateToken}>
-                    <Iconify icon="solar:bell-bing-bold-duotone" sx={{ mr: 2 }} />
-                    Generate Token
-                </MenuItem>
-
                 <MenuItem onClick={handleEdit}>
                     <Iconify icon="solar:pen-bold" sx={{ mr: 2 }} />
-                    Edit
+                    Editar
+                </MenuItem>
+                <MenuItem onClick={handleDelete}>
+                    <Iconify icon="solar:trash-bin-trash-bold" sx={{ mr: 2 }} />
+                    Eliminar
                 </MenuItem>
             </Popover>
         </Card>
