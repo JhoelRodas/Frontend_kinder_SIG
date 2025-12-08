@@ -4,8 +4,8 @@ export type ChildResponse = {
     id: number;
     nombre: string;
     device_id: string;
-    tutor: number;
-    institucion: number;
+    tutor: string | number;
+    institucion: string | number;
     activo: boolean;
     last_status: string;
     ultima_ubicacion: {
