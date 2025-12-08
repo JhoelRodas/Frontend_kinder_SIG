@@ -1,4 +1,5 @@
 import type { UserResponse } from 'src/api/user';
+import type { InstitutionResponse } from 'src/api/institution';
 import type { ChildResponse, ChildUpdate } from 'src/api/child';
 
 import { useState, useEffect } from 'react';
@@ -15,6 +16,7 @@ import DialogContent from '@mui/material/DialogContent';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { userService } from 'src/api/user';
+import { institutionService } from 'src/api/institution';
 
 // ----------------------------------------------------------------------
 
@@ -29,8 +31,10 @@ export function ChildEditDialog({ open, child, onClose, onSave }: ChildEditDialo
     const [nombre, setNombre] = useState(child?.nombre || '');
     const [deviceId, setDeviceId] = useState(child?.device_id || '');
     const [tutor, setTutor] = useState<string | null>(child?.tutor?.toString() || null);
+    const [institucion, setInstitucion] = useState<string | null>(child?.institucion?.toString() || null);
     const [activo, setActivo] = useState(child?.activo ?? true);
     const [users, setUsers] = useState<UserResponse[]>([]);
+    const [institutions, setInstitutions] = useState<InstitutionResponse[]>([]);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -41,7 +45,16 @@ export function ChildEditDialog({ open, child, onClose, onSave }: ChildEditDialo
                 console.error('Failed to fetch users', error);
             }
         };
+        const fetchInstitutions = async () => {
+            try {
+                const data = await institutionService.getInstitutions();
+                setInstitutions(data);
+            } catch (error) {
+                console.error('Failed to fetch institutions', error);
+            }
+        };
         fetchUsers();
+        fetchInstitutions();
     }, []);
 
     useEffect(() => {
@@ -49,6 +62,7 @@ export function ChildEditDialog({ open, child, onClose, onSave }: ChildEditDialo
             setNombre(child.nombre);
             setDeviceId(child.device_id);
             setTutor(child.tutor?.toString() || null);
+            setInstitucion(child.institucion?.toString() || null);
             setActivo(child.activo);
         }
     }, [child]);
@@ -60,6 +74,7 @@ export function ChildEditDialog({ open, child, onClose, onSave }: ChildEditDialo
             nombre,
             device_id: deviceId,
             tutor: tutor ? parseInt(tutor) : undefined,
+            institucion: institucion ? parseInt(institucion) : undefined,
             activo,
         };
 
@@ -104,6 +119,24 @@ export function ChildEditDialog({ open, child, onClose, onSave }: ChildEditDialo
                             />
                         )}
                         noOptionsText="No se encontraron usuarios"
+                    />
+                    <Autocomplete
+                        fullWidth
+                        options={institutions}
+                        getOptionLabel={(option) => `${option.nombre}`}
+                        value={institutions.find(i => String(i.id) === institucion) || null}
+                        onChange={(event, newValue) => {
+                            setInstitucion(newValue?.id.toString() || null);
+                        }}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                margin="dense"
+                                label="Institución"
+                                placeholder="Seleccionar institución"
+                            />
+                        )}
+                        noOptionsText="No se encontraron instituciones"
                     />
                     <FormControlLabel
                         control={

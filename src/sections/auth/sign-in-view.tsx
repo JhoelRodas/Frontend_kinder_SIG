@@ -132,7 +132,7 @@ export function SignInView() {
             color: 'text.secondary',
           }}
         >
-          Don’t have an account?
+          Don&apos;t have an account?
           <Link variant="subtitle2" sx={{ ml: 0.5 }} onClick={() => router.push('/sign-up')} style={{ cursor: 'pointer' }}>
             Get started
           </Link>

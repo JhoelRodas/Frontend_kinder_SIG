@@ -46,13 +46,11 @@ const renderFallback = () => (
 export const routesSection: RouteObject[] = [
   {
     element: (
-      <ProtectedRoute>
-        <DashboardLayout>
-          <Suspense fallback={renderFallback()}>
-            <Outlet />
-          </Suspense>
-        </DashboardLayout>
-      </ProtectedRoute>
+      <DashboardLayout>
+        <Suspense fallback={renderFallback()}>
+          <Outlet />
+        </Suspense>
+      </DashboardLayout>
     ),
     children: [
       { index: true, element: <DashboardPage /> },
