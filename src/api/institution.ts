@@ -73,4 +73,9 @@ export const institutionService = {
       method: 'DELETE',
     });
   },
+
+  async getInstitutionChildren(id: string): Promise<any[]> {
+    const response = await apiClient.get(`/monitoreo/instituciones/${id}/ninos/`);
+    return response;
+  },
 };
