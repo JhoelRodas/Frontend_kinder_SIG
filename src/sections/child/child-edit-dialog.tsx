@@ -1,5 +1,5 @@
 import type { UserResponse } from 'src/api/user';
-import type { ChildResponse } from 'src/api/child';
+import type { ChildResponse, ChildUpdate } from 'src/api/child';
 
 import { useState, useEffect } from 'react';
 
@@ -22,21 +22,14 @@ type ChildEditDialogProps = {
     open: boolean;
     child: ChildResponse | null;
     onClose: () => void;
-    onSave: (id: string, data: {
-        full_name?: string;
-        birth_date?: string;
-        photo_url?: string;
-        is_active?: boolean;
-        user_id?: string;
-    }) => Promise<void>;
+    onSave: (id: number, data: ChildUpdate) => Promise<void>;
 };
 
 export function ChildEditDialog({ open, child, onClose, onSave }: ChildEditDialogProps) {
-    const [fullName, setFullName] = useState(child?.full_name || '');
-    const [birthDate, setBirthDate] = useState(child?.birth_date || '');
-    const [photoUrl, setPhotoUrl] = useState(child?.photo_url || '');
-    const [isActive, setIsActive] = useState(child?.is_active ?? true);
-    const [newUser, setNewUser] = useState(child?.user_id || '');
+    const [nombre, setNombre] = useState(child?.nombre || '');
+    const [deviceId, setDeviceId] = useState(child?.device_id || '');
+    const [tutor, setTutor] = useState<string | null>(child?.tutor?.toString() || null);
+    const [activo, setActivo] = useState(child?.activo ?? true);
     const [users, setUsers] = useState<UserResponse[]>([]);
 
     useEffect(() => {
@@ -53,24 +46,24 @@ export function ChildEditDialog({ open, child, onClose, onSave }: ChildEditDialo
 
     useEffect(() => {
         if (child) {
-            setFullName(child.full_name);
-            setBirthDate(child.birth_date || '');
-            setPhotoUrl(child.photo_url || '');
-            setIsActive(child.is_active);
-            setNewUser(child.user_id || '');
+            setNombre(child.nombre);
+            setDeviceId(child.device_id);
+            setTutor(child.tutor?.toString() || null);
+            setActivo(child.activo);
         }
     }, [child]);
 
     const handleSave = async () => {
         if (!child) return;
 
-        await onSave(child.id, {
-            full_name: fullName,
-            birth_date: birthDate || undefined,
-            photo_url: photoUrl || undefined,
-            user_id: newUser || undefined,
-            is_active: isActive,
-        });
+        const updateData: ChildUpdate = {
+            nombre,
+            device_id: deviceId,
+            tutor: tutor ? parseInt(tutor) : undefined,
+            activo,
+        };
+
+        await onSave(child.id, updateData);
         onClose();
     };
 
@@ -80,35 +73,27 @@ export function ChildEditDialog({ open, child, onClose, onSave }: ChildEditDialo
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
                     <TextField
-                        label="Nombre Completo"
+                        label="Nombre"
                         fullWidth
                         variant="outlined"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
+                        value={nombre}
+                        onChange={(e) => setNombre(e.target.value)}
                     />
                     <TextField
-                        label="Fecha de Nacimiento"
-                        type="date"
+                        label="Device ID"
                         fullWidth
                         variant="outlined"
-                        InputLabelProps={{ shrink: true }}
-                        value={birthDate}
-                        onChange={(e) => setBirthDate(e.target.value)}
-                    />
-                    <TextField
-                        label="URL de Foto"
-                        fullWidth
-                        variant="outlined"
-                        value={photoUrl}
-                        onChange={(e) => setPhotoUrl(e.target.value)}
+                        value={deviceId}
+                        onChange={(e) => setDeviceId(e.target.value)}
+                        helperText="ID único del dispositivo"
                     />
                     <Autocomplete
                         fullWidth
                         options={users}
                         getOptionLabel={(option) => `${option.full_name} (${option.email})`}
-                        value={users.find(u => u.id === newUser) || null}
+                        value={users.find(u => u.id === tutor) || null}
                         onChange={(event, newValue) => {
-                            setNewUser(newValue?.id || '');
+                            setTutor(newValue?.id || null);
                         }}
                         renderInput={(params) => (
                             <TextField
@@ -123,8 +108,8 @@ export function ChildEditDialog({ open, child, onClose, onSave }: ChildEditDialo
                     <FormControlLabel
                         control={
                             <Switch
-                                checked={isActive}
-                                onChange={(e) => setIsActive(e.target.checked)}
+                                checked={activo}
+                                onChange={(e) => setActivo(e.target.checked)}
                             />
                         }
                         label="Activo"
