@@ -52,7 +52,7 @@ export function ChildView() {
 
     const fetchUsers = useCallback(async () => {
         try {
-            const data = await userService.getUsers();
+            const data = await userService.getUsersLegacy();
             setUsers(data);
         } catch (error) {
             console.error('Failed to fetch users', error);

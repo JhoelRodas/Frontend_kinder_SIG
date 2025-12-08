@@ -1,3 +1,5 @@
+import type { Usuario, UsuarioCreate, UsuarioUpdate } from 'src/api/user';
+
 import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
@@ -20,6 +22,7 @@ import { TableNoData } from '../table-no-data';
 import { UserTableRow } from '../user-table-row';
 import { UserTableHead } from '../user-table-head';
 import { TableEmptyRows } from '../table-empty-rows';
+import { UserEditDialog } from '../user-edit-dialog';
 import { UserTableToolbar } from '../user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
@@ -31,20 +34,24 @@ export function UserView() {
   const table = useTable();
 
   const [users, setUsers] = useState<UserProps[]>([]);
+  const [rawUsers, setRawUsers] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterName, setFilterName] = useState('');
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<Usuario | null>(null);
 
   const fetchUsers = useCallback(async () => {
     try {
       const data = await userService.getUsers();
+      setRawUsers(data);
       const mappedUsers: UserProps[] = data.map((user) => ({
-        id: user.id,
-        name: user.full_name,
-        company: user.email, // Using email as company for now
-        role: 'Parent', // Default role
+        id: user.id.toString(),
+        name: `${user.first_name} ${user.last_name}`,
+        company: user.email,
+        role: user.es_tutor ? 'Tutor' : user.es_admin_institucion ? 'Admin' : 'Usuario',
         status: user.is_active ? 'active' : 'banned',
         isVerified: true,
-        avatarUrl: `/assets/images/avatars/avatar_${Math.floor(Math.random() * 25) + 1}.jpg`, // Random avatar
+        avatarUrl: `/assets/images/avatars/avatar_${Math.floor(Math.random() * 25) + 1}.jpg`,
       }));
       setUsers(mappedUsers);
     } catch (error) {
@@ -57,6 +64,46 @@ export function UserView() {
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
+
+  const handleOpenDialog = (user?: Usuario) => {
+    setSelectedUser(user || null);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedUser(null);
+  };
+
+  const handleCreateUser = async (data: UsuarioCreate) => {
+    try {
+      await userService.createUser(data);
+      await fetchUsers();
+    } catch (error) {
+      console.error('Failed to create user', error);
+      throw error;
+    }
+  };
+
+  const handleUpdateUser = async (id: number, data: UsuarioUpdate) => {
+    try {
+      await userService.updateUser(id, data);
+      await fetchUsers();
+    } catch (error) {
+      console.error('Failed to update user', error);
+      throw error;
+    }
+  };
+
+  const handleDeleteUser = async (id: string) => {
+    try {
+      await userService.deleteUser(parseInt(id, 10));
+      await fetchUsers();
+    } catch (error) {
+      console.error('Failed to delete user', error);
+      throw error;
+    }
+  };
 
   const dataFiltered: UserProps[] = applyFilter({
     inputData: users,
@@ -82,6 +129,7 @@ export function UserView() {
           variant="contained"
           color="inherit"
           startIcon={<Iconify icon="mingcute:add-line" />}
+          onClick={() => handleOpenDialog()}
         >
           Nuevo usuario
         </Button>
@@ -138,6 +186,11 @@ export function UserView() {
                         row={row}
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
+                        onEdit={() => {
+                          const rawUser = rawUsers.find(u => u.id.toString() === row.id);
+                          if (rawUser) handleOpenDialog(rawUser);
+                        }}
+                        onDelete={() => handleDeleteUser(row.id)}
                       />
                     ))}
 
@@ -163,6 +216,14 @@ export function UserView() {
           onRowsPerPageChange={table.onChangeRowsPerPage}
         />
       </Card>
+
+      <UserEditDialog
+        open={openDialog}
+        user={selectedUser}
+        onClose={handleCloseDialog}
+        onCreate={handleCreateUser}
+        onUpdate={handleUpdateUser}
+      />
     </DashboardContent>
   );
 }

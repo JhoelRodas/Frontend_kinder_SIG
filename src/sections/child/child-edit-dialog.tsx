@@ -35,7 +35,7 @@ export function ChildEditDialog({ open, child, onClose, onSave }: ChildEditDialo
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const data = await userService.getUsers();
+                const data = await userService.getUsersLegacy();
                 setUsers(data);
             } catch (error) {
                 console.error('Failed to fetch users', error);
