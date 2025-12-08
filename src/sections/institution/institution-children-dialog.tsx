@@ -17,6 +17,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import CircularProgress from '@mui/material/CircularProgress';
 
+import { institutionService } from 'src/api/institution';
+
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
@@ -50,57 +52,7 @@ export function InstitutionChildrenDialog({
 
     setLoading(true);
     try {
-      // TODO: Descomentar cuando el backend esté listo
-      // const data = await institutionService.getInstitutionChildren(institutionId);
-
-      // DATOS DE PRUEBA - REMOVER cuando tengas datos reales
-      const data = [
-        {
-          id: 1,
-          nombre: "Juan Pérez",
-          device_id: "android123",
-          tutor: 5,
-          institucion: 1,
-          activo: true,
-          last_status: "Dentro del Kinder",
-          ultima_ubicacion: { lat: -17.7838, lng: -63.1821 },
-          ultima_actualizacion: "2025-12-08T15:30:00Z"
-        },
-        {
-          id: 2,
-          nombre: "Ana López",
-          device_id: "android456",
-          tutor: 3,
-          institucion: 1,
-          activo: true,
-          last_status: "Fuera del área",
-          ultima_ubicacion: { lat: -17.7840, lng: -63.1825 },
-          ultima_actualizacion: "2025-12-08T15:25:00Z"
-        },
-        {
-          id: 3,
-          nombre: "Luis Cruz",
-          device_id: "android789",
-          tutor: 8,
-          institucion: 1,
-          activo: true,
-          last_status: "Dentro del Kinder",
-          ultima_ubicacion: { lat: -17.7835, lng: -63.1819 },
-          ultima_actualizacion: "2025-12-08T15:29:00Z"
-        },
-        {
-          id: 4,
-          nombre: "María García",
-          device_id: "android321",
-          tutor: 2,
-          institucion: 1,
-          activo: false,
-          last_status: "Fuera del área",
-          ultima_ubicacion: { lat: -17.7842, lng: -63.1830 },
-          ultima_actualizacion: "2025-12-08T14:15:00Z"
-        }
-      ];
-
+      const data = await institutionService.getInstitutionChildren(institutionId);
       setChildren(data);
     } catch (error) {
       console.error('Error al cargar niños:', error);
@@ -113,13 +65,15 @@ export function InstitutionChildrenDialog({
     child.nombre.toLowerCase().includes(filterName.toLowerCase())
   );
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string | null | undefined) => {
+    if (!status) return 'default';
     if (status.toLowerCase().includes('dentro')) return 'success';
     if (status.toLowerCase().includes('fuera')) return 'warning';
     return 'default';
   };
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: string | null | undefined) => {
+    if (!status) return 'solar:eye-bold';
     if (status.toLowerCase().includes('dentro')) return 'solar:check-circle-bold';
     if (status.toLowerCase().includes('fuera')) return 'solar:restart-bold';
     return 'solar:eye-bold';
@@ -217,7 +171,7 @@ export function InstitutionChildrenDialog({
                             }
                           />
                           <Chip
-                            label={child.last_status}
+                            label={child.last_status || 'Sin estado'}
                             color={getStatusColor(child.last_status)}
                             size="small"
                             sx={{ fontWeight: 500 }}
@@ -314,7 +268,7 @@ export function InstitutionChildrenDialog({
                 <Iconify icon="solar:check-circle-bold" width={20} color="success.main" />
                 <Typography variant="body2" color="text.secondary">
                   <strong>
-                    {children.filter((c) => c.last_status.toLowerCase().includes('dentro')).length}
+                    {children.filter((c) => c.last_status?.toLowerCase().includes('dentro')).length}
                   </strong>{' '}
                   dentro
                 </Typography>
@@ -323,7 +277,7 @@ export function InstitutionChildrenDialog({
                 <Iconify icon="solar:restart-bold" width={20} color="warning.main" />
                 <Typography variant="body2" color="text.secondary">
                   <strong>
-                    {children.filter((c) => c.last_status.toLowerCase().includes('fuera')).length}
+                    {children.filter((c) => c.last_status?.toLowerCase().includes('fuera')).length}
                   </strong>{' '}
                   fuera
                 </Typography>
